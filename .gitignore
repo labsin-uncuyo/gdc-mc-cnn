@@ -1,0 +1,6 @@
+dataset/kitti/*
+dataset/kitti2015/*
+dataset/kitti.rgb/*
+dataset/kitti2015.rgb/*
+storage/*
+tmp/*
