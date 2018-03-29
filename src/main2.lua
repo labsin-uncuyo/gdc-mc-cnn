@@ -12,7 +12,7 @@ require("net/model/AccurateModel")
 require("expert/TrainingExpert")
 
 local opts_parser = require 'opts_parser'
-local opt = opts_parser:parse(args)
+local opt = opts_parser.parse(arg)
 
 torch.manualSeed(opt.seed)
 cutorch.manualSeed(opt.seed)

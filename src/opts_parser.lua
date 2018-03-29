@@ -1,24 +1,19 @@
 local opt_module = {}
 
-function opt_module.parse (args)
+function opt_module.parse(arg)
 
    math.randomseed(os.time())
-   
-   local from_ide
-   
-   if arg[1] == "-nc" then
-      from_ide = true
-   end
-   
 
    local cmd = torch.CmdLine()
+   cmd:option('-nc', false, 'Determine if the application is launched from the IDE or console')
+   
    cmd:option('-ds', 'Kitti2012', 'Dataset to be used')
    
    cmd:option('-mc', 'mc-cnn', 'Matching cost network architecture')
    
 --   cmd:option('-dataset', 'dataset', 'Path to the dataset folder')
-   cmd:option('-dataset', (from_ide and '' or '../') .. 'dataset', 'Path to the dataset folder')
-   cmd:option('-storage', (from_ide and '' or '../') .. 'storage', 'Path to the trained nets and cache')
+   cmd:option('-dataset', 'dataset', 'Path to the dataset folder')
+   cmd:option('-storage', 'storage', 'Path to the trained nets and cache')
    cmd:option('-arch', 'acrt', 'Architecture type: acrt, fast, squeeze')
    cmd:option('-mix', false, 'Train on both kitti 2012 and kitti 2015')
    cmd:option('-color', 'rgb', 'Defines if the dataset images will be parsed as rgb or gray')
@@ -50,7 +45,15 @@ function opt_module.parse (args)
    cmd:option('-lambda', 0.8)
    cmd:option('-ws', 3, 'Convolution windows size')
    
-   local opt = cmd:parse(args)
+   local opt = cmd:parse(arg)
+   
+   if not opt.nc then
+      opt.dataset = '../' .. opt.dataset
+      opt.storage = '../' .. opt.storage
+      if opt.mcnet ~= '' then
+         opt.mcnet = '../' .. opt.mcnet
+      end
+   end
    
    opt.kss = {}
    if opt.cks ~= '' then
