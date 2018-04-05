@@ -99,6 +99,8 @@ function Network:getName(opt)
       else
          name = name .. '_ks_' .. opt.ks
       end
+   else
+      name = name .. '_squeeze_'
    end
    
    if opt.color == 'rgb' then

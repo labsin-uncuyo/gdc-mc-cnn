@@ -65,6 +65,10 @@ function Fire:accGradParameters(input, gradOutput, scale)
    return self.gradOutput
 end
 
+function Fire:accUpdateGradParameters(input, gradOutput, lr)
+   self.fire_net:accUpdateGradParameters(input, gradOutput, lr)
+end
+
 function clearModules(container)
    for i=1, #container.modules do
       local m  = container.modules[i]
