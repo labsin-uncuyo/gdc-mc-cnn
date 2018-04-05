@@ -4,13 +4,15 @@ require 'cudnn'
 
 local Fire, parent = torch.class('nn.Fire', 'nn.Module')
 
-function Fire:__init(args)
+function Fire:__init(n_planes, n_squeeze1x1, n_expand1x1, n_expand3x3)
    parent.__init(self)
-   self.n_input = args.n_planes
-   self.n_squeeze1x1 = args.n_squeeze1x1
-   self.n_expand1x1 = args.n_expand1x1
-   self.n_expand3x3 = args.n_expand3x3
+   self.n_input = n_planes
+   self.n_squeeze1x1 = n_squeeze1x1
+   self.n_expand1x1 = n_expand1x1
+   self.n_expand3x3 = n_expand3x3
    self:cuda()
+   
+   self:buildModule()
 end
 
 function Fire:buildModule()
@@ -31,7 +33,7 @@ function Fire:buildModule()
    expand3x3_net:add(self.expand3x3_activation)
    
    -- creating expand parallel components
-   local expand_net = nn.Parallel()
+   local expand_net = nn.Concat(2)
    expand_net:add(expand1x1_net)
    expand_net:add(expand3x3_net)
    
@@ -42,4 +44,47 @@ function Fire:buildModule()
    module_net:add(expand_net)
    
    self.fire_net = module_net
+end
+
+function Fire:updateOutput(input)
+   --local squeeze_output = self.squeeze_activation:updateOutput(self.squeeze:updateOutput(input))
+   --self.output = torch.cat(self.expand1x1_activation:updateOutput(self.expand1x1:updateOutput(squeeze_output)), self.expand3x3_activation:updateOutput(self.expand3x3:updateOutput(squeeze_output)), 2)
+   
+   --print("Squeeze output size: ", squeeze_output:size())
+   self.output = self.fire_net:updateOutput(input)
+   return self.output
+end
+
+function Fire:updateGradInput(input, gradOutput)
+   self.gradInput = self.fire_net:updateGradInput(input, gradOutput)
+   return self.gradInput
+end
+
+function Fire:accGradParameters(input, gradOutput, scale)
+   self.gradOutput = self.fire_net:accGradParameters(input, gradOutput, scale)
+   return self.gradOutput
+end
+
+function clearModules(container)
+   for i=1, #container.modules do
+      local m  = container.modules[i]
+      if m.modules then
+         clearModules(m)
+      else
+         m:apply(
+            function(mod)
+               mod:clearState()
+            end
+            )
+      end
+   end
+end
+
+function Fire:clearState()
+   self.output = nil
+   clearModules(self.fire_net)
+end
+
+function Fire:__tostring__()
+   return tostring(self.fire_net)
 end

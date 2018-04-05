@@ -3,7 +3,7 @@ require 'nn'
 require 'cudnn'
 
 require 'net/matcher/AccurateMatcher'
-require 'net/builder/mc-cnn/MCCNNBuilder'
+require 'net/builder/MCCNNBuilder'
 
 local AccurateBuilder, parent = torch.class('AccurateBuilder', 'MCCNNBuilder')
 

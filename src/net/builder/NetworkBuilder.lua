@@ -29,7 +29,7 @@ function NetworkBuilder:padConvs(module)
    -- Pads the convolutional layers to maintain the image resolution
    for i = 1,#module.modules do
       local m = module:get(i)
-      if torch.typename(m) == 'cudnn.SpatialConvolution' then
+      if torch.typename(m) == 'cudnn.SpatialConvolution' or torch.typename(m) == 'cudnn.SpatialMaxPooling' then
          m.dW = 1
          m.dH = 1
          if m.kW > 1 then
@@ -38,6 +38,8 @@ function NetworkBuilder:padConvs(module)
          if m.kH > 1 then
             m.padH = (m.kH - 1) / 2
          end
+      --elseif torch.typename(m) == 'cudnn.Fire' then
+      --   self:padConvs(m.fire_net)
       elseif m.modules then
          self:padConvs(m)
       end
@@ -47,10 +49,11 @@ end
 function NetworkBuilder.getWindowSize(net, ws)
    ws = ws or 1
 
-   for i = 1,#net.modules do
+   for i = #net.modules,1,-1 do
       local module = net:get(i)
-      if torch.typename(module) == 'cudnn.SpatialConvolution' then
-         ws = ws + module.kW - 1 - module.padW - module.padH
+      if torch.typename(module) == 'cudnn.SpatialConvolution' or torch.typename(module) == 'cudnn.SpatialMaxPooling' then
+         --ws = ws + module.kW - 1 - module.padW - module.padH
+         ws = ((ws - 1) * module.dW) - (2 * module.padW) + module.kW
       end
       if module.modules then
          ws = NetworkBuilder.getWindowSize(module, ws)

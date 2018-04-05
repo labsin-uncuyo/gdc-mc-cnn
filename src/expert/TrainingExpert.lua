@@ -34,6 +34,8 @@ function TrainingExpert:train(dataset, start_epoch)
 
    for epoch = start_epoch and start_epoch or 1, self.params.epochs do
       dataset:shuffle() -- to get random order of samples
+      
+      --local err_te = testingExpert:test(dataset:getTestRange(), false, false)
 
       -- Train one epoch of all the samples
       local err_tr = self:batchEpochTrain(epoch, dataset)
@@ -86,6 +88,10 @@ function TrainingExpert:batchEpochTrain(epoch, dataset)
    for i, idx in ipairs(indexes) do
       if i % 100 == 0 then
          xlua.progress(i,#indexes)
+      end
+      
+      if i % 10 == 0 then
+         os.execute("sleep " .. 0.3)
       end
 
       t = (idx-1) * self.train_batch_size + 1

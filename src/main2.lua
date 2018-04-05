@@ -9,6 +9,7 @@ require 'libadcensus'
 require 'libcv'
 
 require("net/model/AccurateModel")
+require("net/model/SqueezeModel")
 require("expert/TrainingExpert")
 
 local opts_parser = require 'opts_parser'
@@ -22,6 +23,7 @@ local dataset = require("data/" .. opt.ds .. 'Processor')(opt)
 dataset:load(opt)
 
 local model = AccurateModel(opt)
+local model2 = SqueezeModel(opt)
 
 local function main()
 
@@ -29,8 +31,8 @@ local function main()
    
    -- Load last checkpoint if exists
    print('===> Loading matching cost network...')
-   local checkpoint, optim_state = model:load(opt)
-   print('===> Loaded! Network: ' .. model.name)
+   local checkpoint, optim_state = model2:load(opt)
+   print('===> Loaded! Network: ' .. model2.name)
    
    local start_epoch = checkpoint and checkpoint.epoch +1 or opt.start_epoch
    
@@ -39,7 +41,7 @@ local function main()
    --model:buildTestNet(model.net)
    
    -- Initialize new trainer for the MCN
-   local trainingExpert = TrainingExpert(model, optim_state, opt)
+   local trainingExpert = TrainingExpert(model2, optim_state, opt)
    
    trainingExpert:train(dataset, start_epoch)
    
