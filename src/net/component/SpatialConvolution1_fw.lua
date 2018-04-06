@@ -2,11 +2,10 @@ local SpatialConvolution1_fw, parent = torch.class('nn.SpatialConvolution1_fw', 
 
 function SpatialConvolution1_fw:__init(inputSize, outputSize, free)
    parent.__init(self)
-   self:cuda()
-   
    self.weight = torch.CudaTensor(outputSize, inputSize)
    self.bias = torch.CudaTensor(1, outputSize, 1, 1)
-	--self.free = free -- free memory
+   self.output:cuda()
+	self.free = free -- free memory
 end
 
 function SpatialConvolution1_fw:updateOutput(input)

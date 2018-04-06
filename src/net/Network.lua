@@ -84,18 +84,18 @@ function Network:forwardFree(net, input)
       collectgarbage()
    end
 
-   local lastOutput = currentOutput:clone()
+   --local lastOutput = currentOutput:clone()
 
-   for i=1, #net.modules do
-      local m  = net.modules[i]
-      m:apply(
-         function(mod)
-          mod:clearState()
-         end
-         )
-   end
+   --for i=1, #net.modules do
+   --   local m  = net.modules[i]
+   --   m:apply(
+   --      function(mod)
+   --       mod:clearState()
+   --      end
+   --      )
+   --end
 
-   return lastOutput
+   return currentOutput
 end
 
 function Network:getName(opt)

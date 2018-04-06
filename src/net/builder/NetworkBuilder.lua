@@ -15,7 +15,7 @@ end
 function NetworkBuilder:getConvolutional1FromLinear(linearLayer)
    local w = linearLayer.weight
    local b = linearLayer.bias
-   local conv = nn.SpatialConvolution1_fw(w:size(2), w:size(1))
+   local conv = nn.SpatialConvolution1_fw(w:size(2), w:size(1)):cuda()
    conv.weight:copy(w)
    conv.bias:copy(b)
    return conv
