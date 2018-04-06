@@ -22,7 +22,7 @@ function NetworkBuilder:getConvolutional1FromLinear(linearLayer)
 end
 
 function NetworkBuilder:getConcatenation()
-   return nn.Concatenation()
+   return nn.Concatenation():cuda()
 end
 
 function NetworkBuilder:padConvs(module)
