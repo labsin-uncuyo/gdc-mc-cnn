@@ -59,12 +59,13 @@ function Network:forwardFree(net, input)
             currentOutput:storage():resize(1)
             currentOutput:resize(0)
          end
-         currentOutput = nextOutput:clone()
+         currentOutput = nextOutput
+         [[currentOutput = nextOutput:clone()
          m:apply(
             function(mod)
                mod:clearState()
             end
-            )
+            )]]
       end
 --      m:apply(
   --    function(mod)

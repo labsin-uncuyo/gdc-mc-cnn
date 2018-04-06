@@ -47,10 +47,6 @@ function Fire:buildModule()
 end
 
 function Fire:updateOutput(input)
-   --local squeeze_output = self.squeeze_activation:updateOutput(self.squeeze:updateOutput(input))
-   --self.output = torch.cat(self.expand1x1_activation:updateOutput(self.expand1x1:updateOutput(squeeze_output)), self.expand3x3_activation:updateOutput(self.expand3x3:updateOutput(squeeze_output)), 2)
-   
-   --print("Squeeze output size: ", squeeze_output:size())
    self.output = self.fire_net:updateOutput(input)
    return self.output
 end
