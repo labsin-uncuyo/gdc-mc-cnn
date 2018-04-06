@@ -39,27 +39,35 @@ function Network:forwardFree(net, input)
       local nextOutput
       if torch.typename(m) == 'nn.Sequential' then
          nextOutput = self.forwardFree(m, currentOutput)
-         --currentOutput = nextOutput:clone()
-         if currentOutput:storage() ~= nextOutput:storage() then
-            currentOutput:storage():resize(1)
-            currentOutput:resize(0)
-         end
-         currentOutput = nextOutput
+         currentOutput = nextOutput:clone()
+         
+         --model b
+         --if currentOutput:storage() ~= nextOutput:storage() then
+         --   currentOutput:storage():resize(1)
+         --   currentOutput:resize(0)
+         --end
+         --currentOutput = nextOutput
       elseif torch.typename(m) == 'nn.ConcatTable' or torch.typename(m) == 'nn.ParallelTable' then
          nextOutput = m:forward(currentOutput)
          currentOutput = {}
-         --currentOutput[1] = nextOutput[1]:clone()
-         currentOutput[1] = nextOutput[1]
-         --currentOutput[2] = nextOutput[2]:clone()
-         currentOutput[2] = nextOutput[2]
+         currentOutput[1] = nextOutput[1]:clone()
+         currentOutput[2] = nextOutput[2]:clone()
+         
+         --model b
+         --currentOutput[1] = nextOutput[1]
+         --currentOutput[2] = nextOutput[2]
       else
          nextOutput = m:updateOutput(currentOutput)
-         --currentOutput = nextOutput:clone()
-         if currentOutput:storage() ~= nextOutput:storage() then
-            currentOutput:storage():resize(1)
-            currentOutput:resize(0)
-         end
-         currentOutput = nextOutput
+         currentOutput = nextOutput:clone()
+         
+         --model b
+         --if currentOutput:storage() ~= nextOutput:storage() then
+         --   currentOutput:storage():resize(1)
+         --   currentOutput:resize(0)
+         --end
+         --currentOutput = nextOutput
+         
+         -- model a
          --currentOutput = nextOutput:clone()
          --m:apply(
          --   function(mod)
@@ -67,11 +75,11 @@ function Network:forwardFree(net, input)
          --   end
          --   )
       end
---      m:apply(
-  --    function(mod)
-    --     mod:clearState()
---      end
-  --    )
+      m:apply(
+      function(mod)
+         mod:clearState()
+      end
+      )
 
       collectgarbage()
    end

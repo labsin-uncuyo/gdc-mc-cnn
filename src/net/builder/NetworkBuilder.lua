@@ -49,12 +49,12 @@ end
 function NetworkBuilder.getWindowSize(net, ws)
    ws = ws or 1
 
-   for i = 1,#net.modules do
-   --for i = #net.modules,1,-1 do
+   --for i = 1,#net.modules do
+   for i = #net.modules,1,-1 do
       local module = net:get(i)
       if torch.typename(module) == 'cudnn.SpatialConvolution' or torch.typename(module) == 'cudnn.SpatialMaxPooling' then
-         ws = ws + module.kW - 1 - module.padW - module.padH
-         --ws = ((ws - 1) * module.dW) - (2 * module.padW) + module.kW
+         --ws = ws + module.kW - 1 - module.padW - module.padH
+         ws = ((ws - 1) * module.dW) - (2 * module.padW) + module.kW
       end
       if module.modules then
          ws = NetworkBuilder.getWindowSize(module, ws)
