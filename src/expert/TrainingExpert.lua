@@ -26,11 +26,37 @@ local function trainingBatch(dataset, start, size, ws)
    return dataset:trainingSamples(start,size,ws)
 end
 
+local function extractNetworkParams(module)
+   for _,m in ipairs(module.modules) do
+      if m.modules then
+         extractNetworkParams(m)
+      else
+         if m.weight then
+            m.weight_v = torch.CudaTensor(m.weight:size()):zero()
+            table.insert(params, m.weight)
+            table.insert(grads, m.gradWeight)
+            table.insert(momentums, m.weight_v)
+         end
+         if m.bias then
+            m.bias_v = torch.CudaTensor(m.bias:size()):zero()
+            table.insert(params, m.bias)
+            table.insert(grads, m.gradBias)
+            table.insert(momentums, m.bias_v)
+         end
+      end
+   end
+end
+
 function TrainingExpert:train(dataset, start_epoch)
    self.dataset_size = dataset.nnz:size(1)
    self.train_batch_size = self.params.batch_size/2
    
    local testingExpert = TestingExpert(dataset, self.network, nil, self.opt)
+   
+   params = {}
+   grads = {}
+   momentums = {}
+   extractNetworkParams(self.network.net)
 
    for epoch = start_epoch and start_epoch or 1, self.params.epochs do
       dataset:shuffle() -- to get random order of samples
@@ -97,17 +123,39 @@ function TrainingExpert:batchEpochTrain(epoch, dataset)
       t = (idx-1) * self.train_batch_size + 1
       self.inputs, self.targets = trainingBatch(dataset, t, self.train_batch_size, self.network.params.ws)
 
-      _, fs = self.optim(feval, x, self.optim_state)
-      local err = fs[1]
+      --_, fs = self.optim(feval, x, self.optim_state)
+      for i = 1,#params do
+         grads[i]:zero()
+      end
+      
+      self.network.net:forward(self.inputs)
+      local err = self.network.criterion:forward(self.network.net.output, self.targets)
       if err >= 0 and err < 100 then
          err_tr = err_tr + err
          err_tr_cnt = err_tr_cnt + 1
       else
          print(('WARNING! err=%f'):format(err))
-         if err ~= err then
-            os.exit()
-         end
       end
+
+      self.network.criterion:backward(self.network.net.output, self.targets)
+      self.network.net:backward(self.inputs, self.network.criterion.gradInput)
+
+      for i = 1,#params do
+         momentums[i]:mul(self.optim_state.momentum):add(-self.optim_state.learning_rate, grads[i])
+         params[i]:add(momentums[i])
+      end
+      
+      --local err = fs[1]
+      
+      --if err >= 0 and err < 100 then
+      --   err_tr = err_tr + err
+      --   err_tr_cnt = err_tr_cnt + 1
+      --else
+      --   print(('WARNING! err=%f'):format(err))
+      --   if err ~= err then
+      --      os.exit()
+      --   end
+      --end
    end
    xlua.progress(#indexes, #indexes)
    return err_tr / err_tr_cnt
