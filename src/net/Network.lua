@@ -38,7 +38,7 @@ function Network:forwardFree(net, input)
       local m  = net.modules[i]
       local nextOutput
       if torch.typename(m) == 'nn.Sequential' then
-         nextOutput = self.forwardFree(m, currentOutput)
+         nextOutput = self:forwardFree(m, currentOutput)
          currentOutput = nextOutput:clone()
          
          --model b
