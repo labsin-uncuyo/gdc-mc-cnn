@@ -47,9 +47,6 @@ function Network:forwardFree(net, input)
          --   currentOutput:resize(0)
          --end
          --currentOutput = nextOutput
-      elseif torch.typename(m) == 'nn.Concat' then
-         nextOutput = m:forward(currentOutput)
-         currentOutput = nextOutput:clone()
       elseif torch.typename(m) == 'nn.ConcatTable' or torch.typename(m) == 'nn.ParallelTable' then
          nextOutput = m:forward(currentOutput)
          currentOutput = {}
