@@ -27,7 +27,8 @@ local function trainingBatch(dataset, start, size, ws)
 end
 
 local function extractNetworkParams(module)
-   for _,m in ipairs(module.modules) do
+   for i=1,#module.modules do
+      local m = module.modules[i]
       if m.modules then
          extractNetworkParams(m)
       elseif torch.typename(m) == 'nn.Fire' then
@@ -98,7 +99,7 @@ end
 
 function TrainingExpert:batchEpochTrain(epoch, dataset)
    
-   self.optim_state.learningRate = epoch >= 12 and self.params.learning_rate / 10 or self.params.learning_rate
+   self.optim_state.learning_rate = epoch >= 12 and self.params.learning_rate / 10 or self.params.learning_rate
 
    x, dl_dx = self.network:getModelParameters()
 
