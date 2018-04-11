@@ -4,3 +4,5 @@ dataset/kitti.rgb/*
 dataset/kitti2015.rgb/*
 storage/*
 tmp/*
+*.so
+src/*.so

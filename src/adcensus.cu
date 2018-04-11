@@ -2148,7 +2148,6 @@ static const struct luaL_Reg funcs[] = {
 
 extern "C" int luaopen_libadcensus(lua_State *L) {
 	srand(42);
-	cunn_SpatialLogSoftMax_init(L);
 	luaL_openlib(L, "adcensus", funcs, 0);
 	return 1;
 }
