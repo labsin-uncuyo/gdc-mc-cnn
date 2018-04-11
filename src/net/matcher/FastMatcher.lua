@@ -21,8 +21,8 @@ function FastMatcher:computeMatchingCost(x_batch, disp_max, directions)
    end
 
       -- Fix the borders of the obtained map
-   self.network.fixBorder(output[{{1}}], -1, self.network.params.ws)
-   self.network.fixBorder(output[{{2}}], 1, self.network.params.ws)
+   self.network:fixBorder(output[{{1}}], -1, self.network.params.ws)
+   self.network:fixBorder(output[{{2}}], 1, self.network.params.ws)
 
    return output
 end
