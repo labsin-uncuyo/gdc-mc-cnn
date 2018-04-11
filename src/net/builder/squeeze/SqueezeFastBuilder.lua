@@ -2,15 +2,17 @@ require 'torch'
 require 'nn'
 require 'cudnn'
 
-require 'net/matcher/AccurateMatcher'
+require 'net/matcher/FastMatcher'
 require 'net/builder/MCCNNBuilder'
 require 'net/component/FireModule'
+require 'net/component/Normalize2'
+require 'net/score/DotProduct2'
 
-local SqueezeBuilder, parent = torch.class('SqueezeBuilder', 'MCCNNBuilder')
+local SqueezeFastBuilder, parent = torch.class('SqueezeFastBuilder', 'MCCNNBuilder')
 
-function SqueezeBuilder:__init()
+function SqueezeFastBuilder:__init()
    parent.__init(self)
-   self.matcher = AccurateMatcher(self)
+   self.matcher = FastMatcher(self)
 end
 
 local function buildFire(input, squeeze_features, expand1_features, expand3_features)
@@ -43,12 +45,12 @@ local function buildFire(input, squeeze_features, expand1_features, expand3_feat
    return module_net
 end
 
-function SqueezeBuilder:buildDescriptionNet()
+function SqueezeFastBuilder:buildDescriptionNet()
    local descriptionNet = nn.Sequential()
    
    descriptionNet:add(cudnn.SpatialConvolution(self.params.n_input_planes, 96, 5, 5))
    descriptionNet:add(nn.ReLU(true))
-   --descriptionNet:add(cudnn.SpatialMaxPooling(3, 3, 2, 2):ceil())
+   descriptionNet:add(cudnn.SpatialMaxPooling(3, 3, 2, 2):ceil())
    
    --descriptionNet:add(nn.Fire(96, 16, 64, 64))
    descriptionNet:add(buildFire(96, 16, 64, 64))
@@ -57,34 +59,25 @@ function SqueezeBuilder:buildDescriptionNet()
    --descriptionNet:add(nn.Fire(128, 32, 128, 128))
    descriptionNet:add(buildFire(128, 32, 128, 128))
    
-   --descriptionNet:add(cudnn.SpatialMaxPooling(3, 3, 2, 2):ceil())
+   descriptionNet:add(cudnn.SpatialMaxPooling(3, 3, 2, 2):ceil())
    
    --descriptionNet:add(nn.Fire(256, 32, 128, 128))
-   --descriptionNet:add(buildFire(256, 32, 128, 128))
+   descriptionNet:add(buildFire(256, 32, 128, 128))
    --descriptionNet:add(nn.Fire(512, 64, 256, 256))
-   --descriptionNet:add(buildFire(256, 48, 192, 192))
+   descriptionNet:add(buildFire(256, 48, 192, 192))
    
-   descriptionNet:add(cudnn.SpatialConvolution(256, 64, 1, 1))
-   descriptionNet:add(nn.ReLU(true))
+   descriptionNet:add(cudnn.SpatialConvolution(384, 64, 1, 1))
+   descriptionNet:add(nn.Normalize2())
    
    descriptionNet:cuda()
    
    return descriptionNet
 end
 
-function SqueezeBuilder:buildDecisionNet()
+function SqueezeFastBuilder:buildDecisionNet()
    local decisionNet = nn.Sequential()
    
-   decisionNet:add(nn.Reshape(self.params.batch_size, 64*2))
-   
-   for i=1, self.params.n_fully_connected_layers do
-      decisionNet:add(nn.Linear(i == 1 and 64*2 or self.params.n_fully_connected_units, i == self.params.n_fully_connected_layers and 1 or self.params.n_fully_connected_units))
-      if i ~= self.params.n_fully_connected_layers then
-         decisionNet:add(nn.ReLU(true))
-      end
-   end
-   
-   decisionNet:add(nn.Sigmoid(false))
+   decisionNet:add(nn.DotProduct2())
    
    decisionNet:cuda()
    

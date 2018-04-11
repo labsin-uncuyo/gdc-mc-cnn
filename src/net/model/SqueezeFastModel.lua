@@ -2,10 +2,10 @@ require 'torch'
 require 'nn'
 require 'cudnn'
 
-require 'net/criterion/BCECriterion2'
-require 'net/builder/squeeze/SqueezeBuilder'
+require 'net/criterion/Margin2'
+require 'net/builder/squeeze/SqueezeFastBuilder'
 
-local SqueezeModel, parent = torch.class('SqueezeModel', 'SqueezeBuilder')
+local SqueezeFastModel, parent = torch.class('SqueezeFastModel', 'SqueezeFastBuilder')
 
 local function load_params(self, opt)
    self.params = {}
@@ -57,10 +57,10 @@ local function load_params(self, opt)
    for k,v in pairs(self.params) do print(k, v) end
 end
 
-function SqueezeModel:__init(opt)
+function SqueezeFastModel:__init(opt)
    parent.__init(self)
    load_params(self, opt)
    self.name = self:getName(opt)
    self.path = opt.storage .. '/net/mc/'
-   self.criterion = nn.BCECriterion2():cuda()
+   self.criterion = nn.Margin2():cuda()
 end
