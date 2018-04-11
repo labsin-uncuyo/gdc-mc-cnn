@@ -32,6 +32,9 @@ function opt_module.parse(arg)
    cmd:option('-make_cache', false)
    cmd:option('-use_cache', false)
    cmd:option('-save_img', true)
+   cmd:option('-wait', false, 'Wait some time between training batchs to cooldown the cpu')
+   cmd:option('-wait_time', 0.2, 'Time to wait between training batchs')
+   cmd:option('-wait_batchs', 10, 'Number of batchs to process before cooldown waiting')
 
    -- Parameters of the matching cost network
    cmd:option('-cl', 4, 'Convolutional Layers number')

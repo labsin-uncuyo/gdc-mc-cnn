@@ -30,6 +30,8 @@ local function extractNetworkParams(module)
    for _,m in ipairs(module.modules) do
       if m.modules then
          extractNetworkParams(m)
+      elseif torch.typename(m) == 'nn.Fire' then
+         extractNetworkParams(m.fire_net)
       else
          if m.weight then
             m.weight_v = torch.CudaTensor(m.weight:size()):zero()
@@ -116,8 +118,10 @@ function TrainingExpert:batchEpochTrain(epoch, dataset)
          xlua.progress(i,#indexes)
       end
       
-      if i % 10 == 0 then
-         os.execute("sleep " .. 0.3)
+      if self.opt.wait then
+         if i % self.opt.wait_batchs == 0 then
+            os.execute("sleep " .. self.opt.wait_time)
+         end
       end
 
       t = (idx-1) * self.train_batch_size + 1
