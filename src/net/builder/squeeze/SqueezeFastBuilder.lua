@@ -57,16 +57,17 @@ function SqueezeFastBuilder:buildDescriptionNet()
    --descriptionNet:add(nn.Fire(128, 16, 64, 64))
    descriptionNet:add(buildFire(128, 16, 64, 64))
    --descriptionNet:add(nn.Fire(128, 32, 128, 128))
-   descriptionNet:add(buildFire(128, 32, 128, 128))
+   descriptionNet:add(buildFire(128, 32, 96, 96))
    
-   descriptionNet:add(cudnn.SpatialMaxPooling(3, 3, 2, 2):ceil())
+   --descriptionNet:add(cudnn.SpatialMaxPooling(3, 3, 2, 2):ceil())
    
    --descriptionNet:add(nn.Fire(256, 32, 128, 128))
-   descriptionNet:add(buildFire(256, 32, 128, 128))
+   --descriptionNet:add(buildFire(256, 32, 128, 128))
    --descriptionNet:add(nn.Fire(512, 64, 256, 256))
-   descriptionNet:add(buildFire(256, 48, 192, 192))
+   --descriptionNet:add(buildFire(256, 48, 192, 192))
    
-   descriptionNet:add(cudnn.SpatialConvolution(384, 64, 1, 1))
+   --descriptionNet:add(cudnn.SpatialConvolution(384, 64, 1, 1))
+   descriptionNet:add(cudnn.SpatialConvolution(192, 64, 1, 1))
    descriptionNet:add(nn.Normalize2())
    
    descriptionNet:cuda()

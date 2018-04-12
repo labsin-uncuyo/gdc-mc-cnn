@@ -3,7 +3,8 @@ require 'image'
 
 local StoringExpert = torch.class('StoringExpert')
 
-function StoringExpert:__init()
+function StoringExpert:__init(path)
+   self.path = path
 end
 
 function StoringExpert:save_png(dataset, img, disp_max, pred, pred_bad, pred_good, mask, network_name)
@@ -33,9 +34,9 @@ function StoringExpert:save_png(dataset, img, disp_max, pred, pred_bad, pred_goo
    local img_gt = torch.Tensor(1, 3, pred:size(3), pred:size(4)):zero()
    adcensus.grey2jet(gt:double():add(1)[{1}]:div(disp_max):double(), img_gt)
    img_gt[{1,3}]:cmul(mask:double())
-
-   image.save(('../tmp/%s_%s_gt.png'):format(dataset.name, img.id), img_gt[1])
-   image.save(('../tmp/%s_%s_real.png'):format(dataset.name, img.id), real[1])
-   image.save(('../tmp/%s_%s_%s_pred.png'):format(dataset.name, network_name, img.id), img_pred[1])
-   image.save(('../tmp/%s_%s_%s_err.png'):format(dataset.name, network_name, img.id), img_err[1])
+   
+   image.save((self.path .. '/%s_%s_gt.png'):format(dataset.name, img.id), img_gt[1])
+   image.save((self.path .. '/%s_%s_real.png'):format(dataset.name, img.id), real[1])
+   image.save((self.path .. '/%s_%s_%s_pred.png'):format(dataset.name, network_name, img.id), img_pred[1])
+   image.save((self.path .. '/%s_%s_%s_err.png'):format(dataset.name, network_name, img.id), img_err[1])
 end

@@ -13,7 +13,7 @@ function TestingExpert:__init(dataset, network, gdn, opt)
    self.opt = opt
    self.path = ('%s/cache/%s/%s'):format(opt.storage, self.dataset.name, self.network.name)
    
-   self.storing = StoringExpert()
+   self.storing = StoringExpert(opt.temp)
 end
 
 local function calcErr(self, pred, dispnoc, mask)

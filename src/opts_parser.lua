@@ -14,6 +14,7 @@ function opt_module.parse(arg)
 --   cmd:option('-dataset', 'dataset', 'Path to the dataset folder')
    cmd:option('-dataset', 'dataset', 'Path to the dataset folder')
    cmd:option('-storage', 'storage', 'Path to the trained nets and cache')
+   cmd:option('-temp', 'tmp', 'Path where temporal files will be created')
    cmd:option('-arch', 'acrt', 'Architecture type: acrt, fast, squeeze')
    cmd:option('-mix', false, 'Train on both kitti 2012 and kitti 2015')
    cmd:option('-color', 'rgb', 'Defines if the dataset images will be parsed as rgb or gray')
@@ -53,6 +54,7 @@ function opt_module.parse(arg)
    if not opt.nc then
       opt.dataset = '../' .. opt.dataset
       opt.storage = '../' .. opt.storage
+      opt.temp = '../' .. opt.temp
       if opt.mcnet ~= '' then
          opt.mcnet = '../' .. opt.mcnet
       end

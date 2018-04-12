@@ -85,6 +85,7 @@ function SqueezeBuilder:buildDecisionNet()
    end
    
    decisionNet:add(nn.Sigmoid(false))
+   --decisionNet:add(nn.ReLU(true))
    
    decisionNet:cuda()
    
