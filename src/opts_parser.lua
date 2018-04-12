@@ -49,6 +49,8 @@ function opt_module.parse(arg)
    cmd:option('-lambda', 0.8)
    cmd:option('-ws', 3, 'Convolution windows size')
    
+   cmd:option('-a', 'train', 'Action to perform: train (then test), test')
+   
    local opt = cmd:parse(arg)
    
    if not opt.nc then

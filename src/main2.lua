@@ -36,22 +36,24 @@ local function main()
    local checkpoint, optim_state = model3:load(opt)
    print('===> Loaded! Network: ' .. model3.name)
    
-   local start_epoch = checkpoint and checkpoint.epoch +1 or opt.start_epoch
+   if opt.a == 'train' then
    
-   --model:buildNet()
+      local start_epoch = checkpoint and checkpoint.epoch +1 or opt.start_epoch
+      
+      -- Initialize new trainer for the MCN
+      local trainingExpert = TrainingExpert(model3, optim_state, opt)
+      
+      trainingExpert:train(dataset, start_epoch)
+      
+   end
    
-   --model:buildTestNet(model.net)
+   if opt.a == 'test' then
    
-   -- Initialize new trainer for the MCN
-   local trainingExpert = TrainingExpert(model3, optim_state, opt)
-   
-   trainingExpert:train(dataset, start_epoch)
-   
-   --model:testclone()
-   
-   --local trainingExp = TrainingExpert:new{model = model, dataset = dataset}
-   
-   --trainingExp:train()
+      local testingExpert = TestingExpert(dataset, model3, nil, opt)
+      
+      testingExpert:test(dataset:getTestRange(), true, false)
+      
+   end
    
 end
 
