@@ -10,7 +10,7 @@ local FastModel, parent = torch.class('FastModel', 'FastBuilder')
 local function load_params(self, opt)
    self.params = {}
    local p = self.params
-   p.n_conv_layers = 5                                -- number of convolutional layers
+   p.n_conv_layers = 4                                -- number of convolutional layers
    p.n_feature_maps = 64                              -- number of convolutional layer feature maps
    p.kernel_sizes = opt.kss                           -- kernel sizes
    p.n_input_planes = opt.color == 'rgb' and 3 or 1
@@ -26,19 +26,19 @@ local function load_params(self, opt)
    p.weight_decay = 1e-4
    
    if opt.ds == 'Kitti2012' then
-      p.L1=5
-      p.cbca_i1=2
+      p.L1=0
+      p.cbca_i1=0
       p.cbca_i2=0
-      p.tau1=0.13
-      p.pi1=1.32
-      p.pi2=24.25
+      p.tau1=0
+      p.pi1=4        --sgm_P1
+      p.pi2=55.72    --sgm_P2?
       p.sgm_i=1
       p.sgm_q1=3
-      p.sgm_q2=2
-      p.alpha1=2
-      p.tau_so=0.08
-      p.blur_sigma=5.99
-      p.blur_t=6
+      p.sgm_q2=2.5
+      p.alpha1=1.5   --sgm_V
+      p.tau_so=0.02  --sgm_D
+      p.blur_sigma=7.74
+      p.blur_t=5
    elseif opt.ds == 'Kitti2015' then
       p.L1=5
       p.cbca_i1=2

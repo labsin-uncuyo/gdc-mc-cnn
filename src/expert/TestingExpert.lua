@@ -36,6 +36,7 @@ function TestingExpert:test(range, showall, make_cache)
    
    local predicting_expert = PredictingExpert(self.network, self.dataset, opt, self.path) 
 
+   local runtime_sum = 0
    for i, idx in ipairs(range) do
       xlua.progress(i-1, #range)
       local img = self.dataset:getTestSample(idx, false)
@@ -49,6 +50,8 @@ function TestingExpert:test(range, showall, make_cache)
 
       cutorch.synchronize()
       local runtime = sys.toc()
+      
+      runtime_sum = runtime_sum + runtime
 
       local dispnoc = img.dispnoc
       -- creates a mask with all the non-zero objects of the disparity
@@ -66,5 +69,5 @@ function TestingExpert:test(range, showall, make_cache)
       collectgarbage()
    end
    xlua.progress(#range, #range)
-   return err_sum / #range
+   return err_sum / #range, runtime_sum / #range
 end
