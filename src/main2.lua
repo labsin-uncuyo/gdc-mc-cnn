@@ -53,8 +53,9 @@ local function main()
    
       local testingExpert = TestingExpert(dataset, model4, nil, opt)
       
-      testingExpert:test(dataset:getTestRange(), true, false)
+      local avg_error, avg_time = testingExpert:test(dataset:getTestRange(), true, false)
       
+      print('Avg error: ', avg_error, 'Avg time: ', avg_time)
    end
    
 end
