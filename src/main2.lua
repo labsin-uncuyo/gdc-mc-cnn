@@ -12,6 +12,7 @@ require("net/model/AccurateModel")
 require("net/model/SqueezeModel")
 require("net/model/SqueezeFastModel")
 require("net/model/SqueezeFast2Model")
+require("net/model/SqueezeFast3Model")
 require("net/model/FastModel")
 require("expert/TrainingExpert")
 
@@ -30,6 +31,7 @@ local model2 = SqueezeModel(opt)
 local model3 = SqueezeFastModel(opt)
 local model4 = FastModel(opt)
 local model5 = SqueezeFast2Model(opt)
+local model6 = SqueezeFast3Model(opt)
 
 local function main()
 
@@ -37,15 +39,15 @@ local function main()
    
    -- Load last checkpoint if exists
    print('===> Loading matching cost network...')
-   local checkpoint, optim_state = model5:load(opt)
-   print('===> Loaded! Network: ' .. model5.name)
+   local checkpoint, optim_state = model6:load(opt)
+   print('===> Loaded! Network: ' .. model6.name)
    
    if opt.a == 'train' then
    
       local start_epoch = checkpoint and checkpoint.epoch +1 or opt.start_epoch
       
       -- Initialize new trainer for the MCN
-      local trainingExpert = TrainingExpert(model5, optim_state, opt)
+      local trainingExpert = TrainingExpert(model6, optim_state, opt)
       
       trainingExpert:train(dataset, start_epoch)
       
@@ -53,7 +55,7 @@ local function main()
    
    if opt.a == 'test' then
    
-      local testingExpert = TestingExpert(dataset, model5, nil, opt)
+      local testingExpert = TestingExpert(dataset, model6, nil, opt)
       
       local avg_error, avg_time = testingExpert:test(dataset:getTestRange(), true, false)
       
