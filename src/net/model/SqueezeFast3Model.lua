@@ -3,7 +3,7 @@ require 'nn'
 require 'cudnn'
 
 require 'net/criterion/Margin2'
-require 'net/builder/squeeze/SqueezeFastBuilder'
+require 'net/builder/squeeze/SqueezeFast3Builder'
 
 local SqueezeFast3Model, parent = torch.class('SqueezeFast3Model', 'SqueezeFast3Builder')
 
