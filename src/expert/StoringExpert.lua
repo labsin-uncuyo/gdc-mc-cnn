@@ -40,3 +40,8 @@ function StoringExpert:save_png(dataset, img, disp_max, pred, pred_bad, pred_goo
    image.save((self.path .. '/%s_%s_%s_pred.png'):format(dataset.name, network_name, img.id), img_pred[1])
    image.save((self.path .. '/%s_%s_%s_err.png'):format(dataset.name, network_name, img.id), img_err[1])
 end
+
+function StoringExpert:save_png_noerror(dataset, img, disp_filtered, disp_max, sufix)
+   local norm_disp = disp_filtered:double():add(1)[{1}]:div(disp_max):double()
+   image.save((self.path .. '/%s_%s_noerr_%s.png'):format(dataset.name, img.id, sufix), norm_disp[1])
+end

@@ -1,9 +1,11 @@
 require 'torch'
 
 require 'expert/MatchingExpert'
+require 'expert/PrePostProcessingExpert'
 require 'expert/PostProcessingExpert'
 require 'expert/DisparityExpert'
 require 'expert/RefinementExpert'
+require 'expert/StoringExpert'
 
 local PredictingExpert = torch.class('PredictingExpert')
 
@@ -13,9 +15,11 @@ function PredictingExpert:__init(network, dataset, opt, path)
    self.opt = opt
    self.path = path
    self.matching = MatchingExpert()
+   self.pre_post_processing = PrePostProcessingExpert(opt)
    self.post_processing = PostProcessingExpert()
    self.disparity = DisparityExpert()
    self.refinement = RefinementExpert()
+   self.storing = StoringExpert(opt.temp)
 end
 
 function PredictingExpert:predict(img, disp_max, directions, make_cache)
@@ -32,6 +36,14 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
       end
    end
    collectgarbage()
+   
+   --self.pre_post_processing:npp_info()
+   
+   -- disparity image pre-postprocessing
+   local disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+   --local disp_filtered = self.pre_post_processing:depth_filter(disp)
+   --local disp_eroded = self.pre_post_processing:erode(disp_filtered)
+   --self.storing:save_png_noerror(self.dataset, img, disp_filtered, disp_max, 'pre')
 
    -- post_process
    vox = self.post_processing:process(vox, img.x_batch, disp_max, self.network.params, self.dataset, self.opt.sm_terminate, self.opt.sm_skip, directions)
@@ -42,6 +54,8 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
 
    -- disparity image
    local disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+   --local disp_filtered2 = self.pre_post_processing:depth_filter(disp)
+   --self.storing:save_png_noerror(self.dataset, img, disp_filtered2, disp_max, 'post')
 
    -- refinement
    disp = self.refinement:refine(disp, vox_simple, self.network.params, self.dataset, self.opt.sm_skip ,self.opt.sm_terminate, disp_max, conf, t.t1, t.t2)

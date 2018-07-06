@@ -13,6 +13,7 @@ function Margin2:updateOutput(input, target)
    self.tmp:resize(input:size(1) / 2)
    self.gradInput:resizeAs(input)
    adcensus.Margin2(input, self.tmp, self.gradInput, self.margin, self.pow)
+   --adcensus.Margin3(input, self.tmp, self.gradInput, self.margin, self.pow)
    self.output = self.tmp:mean()
    self.gradInput:div(self.tmp:size(1))
    return self.output

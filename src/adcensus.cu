@@ -1390,7 +1390,8 @@ struct Margin2_functor {
 	float margin;
 	__host__ Margin2_functor(float margin_) : margin(margin_) {};
 	__device__ float forward(float pos, float neg) {
-		return fmaxf(0, neg - pos + margin);
+		float result = fmaxf(0, neg - pos + margin);
+		return result;
 	}
 	__device__ float backward(float pos, float neg, int which) {
 		float f = neg - pos + margin;
@@ -1411,6 +1412,7 @@ struct Margin2_squared_functor {
 	}
 	__device__ float backward(float pos, float neg, int which) {
 		float f = neg - pos + margin;
+		
 		if (which == 0) {
 			return -f * (f > 0);
 		} else {
@@ -1461,6 +1463,94 @@ int Margin2(lua_State *L)
 	checkCudaError(L);
 	return 0;
 }
+
+
+
+struct Margin3_functor {
+	float margin;
+	__host__ Margin3_functor(float margin_) : margin(margin_) {};
+	__device__ float forward(float pos, float neg) {
+		float result = fmaxf(0, neg - pos + margin);
+		return result;
+	}
+	__device__ int backward(float pos, float neg, float *gradInput, int id) {
+		float f = neg - pos + margin;
+		
+		gradInput[id * 2] = (f > 0) ? -1 : 0;
+		gradInput[id * 2 + 1] = -gradInput[id * 2];
+		
+		return 0;
+	}
+};
+
+struct Margin3_squared_functor {
+	float margin;
+	__host__ Margin3_squared_functor(float margin_) : margin(margin_) {};
+	__device__ float forward(float pos, float neg) {
+		float d = fmaxf(0, neg - pos + margin);
+		return d * d * 0.5;
+	}
+	__device__ int backward(float pos, float neg, float *gradInput, int id) {
+		float f = neg - pos + margin;
+		
+		gradInput[id * 2] = (f > 0) ? -f : 0; 
+		gradInput[id * 2 + 1] = -gradInput[id * 2];
+		
+		return 0;
+	}
+};
+
+template <class Op>
+__global__ void Margin3_(float *input, float *tmp, float *gradInput, float margin, Op op, int size)
+{
+	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < size) {
+		float pos = input[id * 2];
+		float neg = input[id * 2 + 1];
+		tmp[id] = op.forward(pos, neg);
+		op.backward(pos, neg, gradInput, id);
+		//gradInput[id * 2] = op.backward(pos, neg);
+		//gradInput[id * 2 + 1] = -gradInput[id * 2];
+		printf("Grid dim, Block id, block dim, thread id: (%d, %d, %d, %d)\n"
+				"Margin 3 function template. ID: %d\n"
+				"Pos and Neg values are %.2f and %.2f\n"
+				"gradInput %d and %d: (%.2f, %.2f)\n\n", gridDim.x, blockIdx.x, blockDim.x, threadIdx.x, id, pos, neg, id*2, id*2+1, gradInput[id * 2], gradInput[id * 2 + 1]);
+	}
+}
+
+int Margin3(lua_State *L)
+{
+	THCState *state = getCutorchState(L);
+	THCudaTensor *input = (THCudaTensor*)luaT_checkudata(L, 1, "torch.CudaTensor");
+	THCudaTensor *tmp = (THCudaTensor*)luaT_checkudata(L, 2, "torch.CudaTensor");
+	THCudaTensor *gradInput = (THCudaTensor*)luaT_checkudata(L, 3, "torch.CudaTensor");
+	float margin = luaL_checknumber(L, 4);
+	int pow = luaL_checkinteger(L, 5);
+
+	if (pow == 1) {
+		printf("Entering Margin3 pow 1.\n\n");
+		printf("Number of elements in the result array: %d\n", THCudaTensor_nElement(state, tmp));
+		printf("Number of thread blocks: %d\n", (THCudaTensor_nElement(state, tmp) - 1) / TB + 1);
+		Margin3_<<<(THCudaTensor_nElement(state, tmp) - 1) / TB + 1, TB>>>(
+			THCudaTensor_data(state, input),
+			THCudaTensor_data(state, tmp),
+			THCudaTensor_data(state, gradInput),
+			margin,
+			Margin3_functor(margin),
+			THCudaTensor_nElement(state, tmp));
+	} else if (pow == 2) {
+		Margin3_<<<(THCudaTensor_nElement(state, tmp) - 1) / TB + 1, TB>>>(
+			THCudaTensor_data(state, input),
+			THCudaTensor_data(state, tmp),
+			THCudaTensor_data(state, gradInput),
+			margin,
+			Margin3_squared_functor(margin),
+			THCudaTensor_nElement(state, tmp));
+	}
+	checkCudaError(L);
+	return 0;
+}
+
 
 
 __global__ void StereoJoin_(float *input_L, float *input_R, float *output_L, float *output_R, int size1_input, int size1, int size3, int size23)
@@ -2129,6 +2219,7 @@ static const struct luaL_Reg funcs[] = {
 	{"Normalize_forward", Normalize_forward},
 	{"Normalize_backward_input", Normalize_backward_input},
 	{"Margin2", Margin2},
+	{"Margin3", Margin3},
 	{"StereoJoin", StereoJoin},
 	{"StereoL2R", StereoL2R},
 	{"L2dist", L2dist},
