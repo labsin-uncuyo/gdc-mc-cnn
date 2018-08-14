@@ -42,6 +42,8 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
    if self.opt.alternate_proc then
       disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
       disp = self.pre_post_processing:cv_erode(disp)
+   else if self.opt.just_refinement then
+      disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
    else
       vox = self.post_processing:process(vox, img.x_batch, disp_max, self.network.params, self.dataset, self.opt.sm_terminate, self.opt.sm_skip, directions)
       
