@@ -1,5 +1,5 @@
 PREFIX=$(HOME)/torch/install
-CUDA=/opt/cuda
+CUDA=/usr/local/cuda-8.0
 CFLAGS=-I$(PREFIX)/include/THC -I$(PREFIX)/include/TH -I$(PREFIX)/include
 LDFLAGS_NVCC=-L$(PREFIX)/lib -Xlinker -rpath,$(PREFIX)/lib -lluaT -lTHC -lTH -lpng
 LDFLAGS_CPP=-L$(PREFIX)/lib -lluaT -lTH `pkg-config --libs opencv`

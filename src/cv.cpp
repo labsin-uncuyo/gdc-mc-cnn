@@ -62,6 +62,8 @@ int copy_make_border(lua_State *L)
 
     return 0;
 }
+
+
 static const struct luaL_Reg funcs[] = {
 	{"warp_affine", warp_affine},
 	{"copy_make_border", copy_make_border},

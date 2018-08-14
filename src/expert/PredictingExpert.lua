@@ -40,20 +40,28 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
    --self.pre_post_processing:npp_info()
    
    -- disparity image pre-postprocessing
-   local disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+   
    --local disp_filtered = self.pre_post_processing:depth_filter(disp)
    --local disp_eroded = self.pre_post_processing:erode(disp_filtered)
-   --self.storing:save_png_noerror(self.dataset, img, disp_filtered, disp_max, 'pre')
+   --self.pre_post_processing:cv_erode(disp_filtered)
+   --self.storing:save_png_noerror(self.dataset, img, disp_eroded[1], disp_max, 'pre')
 
+   local disp, conf, t, vox_simple
    -- post_process
-   vox = self.post_processing:process(vox, img.x_batch, disp_max, self.network.params, self.dataset, self.opt.sm_terminate, self.opt.sm_skip, directions)
-   collectgarbage()
-
+   if self.opt.alternate_proc then
+      disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+      disp = self.pre_post_processing:cv_erode(disp)
+   else
+      vox = self.post_processing:process(vox, img.x_batch, disp_max, self.network.params, self.dataset, self.opt.sm_terminate, self.opt.sm_skip, directions)
+      
+      collectgarbage()
+   
+      -- disparity image
+      disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+   end
    -- pred after post process
    local vox_simple = vox:clone()
-
-   -- disparity image
-   local disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+   
    --local disp_filtered2 = self.pre_post_processing:depth_filter(disp)
    --self.storing:save_png_noerror(self.dataset, img, disp_filtered2, disp_max, 'post')
 
