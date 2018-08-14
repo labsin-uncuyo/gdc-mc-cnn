@@ -100,26 +100,11 @@ function PrePostProcessingExpert:cv_erode(map)
    
    local kernel_cross_5x5 = torch.ByteTensor({{0,0,1,0,0},{0,1,1,1,0},{1,1,1,1,1},{0,1,1,1,0},{0,0,1,0,0}})
    
-   
    cv.erode{floatTensor, out_cross, kernel_cross_3x3}
-   
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'erode cross', out_cross}
-   --cv.waitKey{0}
-   
    cv.dilate{out_cross, out_cross, kernel_cross_3x3}
    
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'dilate cross', out_cross}
-   --cv.waitKey{0}
-   
-   cv.erode{out_cross, out_cross, kernel_cross_5x5}
-   
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'erode cross 2', out_cross}
-   --cv.waitKey{0}
-   
-   cv.dilate{out_cross, out_cross, kernel_cross_5x5}
+   --cv.erode{out_cross, out_cross, kernel_cross_5x5}
+   --cv.dilate{out_cross, out_cross, kernel_cross_5x5}
    
    --cv.imshow{'mapita', floatTensor}
    --cv.imshow{'dilate cross 2', out_cross}
@@ -130,32 +115,12 @@ function PrePostProcessingExpert:cv_erode(map)
    local floatTensor = nn.utils.recursiveType(map[2][1]:permute(2,3,1), 'torch.FloatTensor')
    
    cv.erode{floatTensor, out_cross, kernel_cross_3x3}
-   
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'erode cross', out_cross}
-   --cv.waitKey{0}
-   
    cv.dilate{out_cross, out_cross, kernel_cross_3x3}
    
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'dilate cross', out_cross}
-   --cv.waitKey{0}
-   
-   cv.erode{out_cross, out_cross, kernel_cross_5x5}
-   
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'erode cross 2', out_cross}
-  -- cv.waitKey{0}
-   
-   cv.dilate{out_cross, out_cross, kernel_cross_5x5}
-   
-   --cv.imshow{'mapita', floatTensor}
-   --cv.imshow{'dilate cross 2', out_cross}
-   --cv.waitKey{0}
+   --cv.erode{out_cross, out_cross, kernel_cross_5x5}
+   --cv.dilate{out_cross, out_cross, kernel_cross_5x5}
    
    map[2][1] = nn.utils.recursiveType(out_cross:permute(3,1,2), 'torch.CudaTensor')
-   --prueba 1
-   --cv.imshow{'mapita', map[1][1]:permute(2,3,1)}
    return map
 end
 
