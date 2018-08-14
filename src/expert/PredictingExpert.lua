@@ -37,15 +37,6 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
    end
    collectgarbage()
    
-   --self.pre_post_processing:npp_info()
-   
-   -- disparity image pre-postprocessing
-   
-   --local disp_filtered = self.pre_post_processing:depth_filter(disp)
-   --local disp_eroded = self.pre_post_processing:erode(disp_filtered)
-   --self.pre_post_processing:cv_erode(disp_filtered)
-   --self.storing:save_png_noerror(self.dataset, img, disp_eroded[1], disp_max, 'pre')
-
    local disp, conf, t, vox_simple
    -- post_process
    if self.opt.alternate_proc then
@@ -58,6 +49,9 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
    
       -- disparity image
       disp, vox, conf, t = self.disparity:disparityImage(vox, self.gdn)
+      if self.opt.alternate_after_proc then
+         disp = self.pre_post_processing:cv_erode(disp)
+      end
    end
    -- pred after post process
    local vox_simple = vox:clone()
