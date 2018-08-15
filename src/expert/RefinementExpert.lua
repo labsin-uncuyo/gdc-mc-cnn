@@ -23,8 +23,8 @@ local function gaussian(sigma)
    return k
 end
 
-function RefinementExpert:refine(disp, vols, opt, dataset, sm_skip, sm_terminate, disp_max, conf, t1, t2)
-   local sm_active = true
+function RefinementExpert:refine(disp, vols, opt, dataset, sm_skip, sm_terminate, disp_max, conf, t1, t2, prev_sm_active)
+   local sm_active = prev_sm_active
    if dataset.name == 'kitti2012' or dataset.name == 'kitti2015' then
        local outlier = torch.CudaTensor():resizeAs(disp[2]):zero()
        curesmatch.outlier_detection(disp[2], disp[1], outlier, disp_max, conf[1], conf[2], t1, t2)
