@@ -43,15 +43,15 @@ local function main()
    
    -- Load last checkpoint if exists
    print('===> Loading matching cost network...')
-   local checkpoint, optim_state = model3:load(opt)
-   print('===> Loaded! Network: ' .. model3.name)
+   local checkpoint, optim_state = model8:load(opt)
+   print('===> Loaded! Network: ' .. model8.name)
    
    if opt.a == 'train' then
    
       local start_epoch = checkpoint and checkpoint.epoch +1 or opt.start_epoch
       
       -- Initialize new trainer for the MCN
-      local trainingExpert = TrainingExpert(model3, optim_state, opt)
+      local trainingExpert = TrainingExpert(model8, optim_state, opt)
       
       trainingExpert:train(dataset, start_epoch)
       
@@ -59,7 +59,7 @@ local function main()
    
    if opt.a == 'test' then
    
-      local testingExpert = TestingExpert(dataset, model3, nil, opt)
+      local testingExpert = TestingExpert(dataset, model8, nil, opt)
       
       local avg_error, avg_time = testingExpert:test(dataset:getTestRange(), true, false)
       

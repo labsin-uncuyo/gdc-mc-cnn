@@ -1,3 +1,6 @@
+require 'math'
+require 'image'
+
 Processor = require('data/Processor')
 
 local KittiProcessor, parent = torch.class('KittiProcessor', 'Processor')
@@ -195,23 +198,47 @@ function KittiProcessor:getLR(img)
    return x0, x1
 end
 
-function KittiProcessor:getTestSample(i, submit)
+function KittiProcessor:getTestSample(i, submit, reduction_factor)
    local img = {}
+   
+   local factor = reduction_factor or 1
 
-   img.height = self.metadata[{i,1}]
-   img.width = self.metadata[{i,2}]
+   local orig_height = self.metadata[{i,1}]
+   local orig_width = self.metadata[{i,2}]
+
 
    img.id = self.metadata[{i,3}]
-   if not submit then
-      img.dispnoc = self.dispnoc[{i,{},{},{1,img.width}}]:cuda()
-   end
-   local x0 = self.X0[{{i},{},{},{1,img.width}}]
-   local x1 = self.X1[{{i},{},{},{1,img.width}}]
-
+   local x0 = self.X0[{{i},{},{},{1,orig_width}}]
+   local x1 = self.X1[{{i},{},{},{1,orig_width}}]
+   
    img.x_batch = torch.CudaTensor(2, self.n_channels, self.height, self.width)
-   img.x_batch:resize(2, self.n_channels, x0:size(3), x0:size(4))
-   img.x_batch[1]:copy(x0)
-   img.x_batch[2]:copy(x1)
+   
+   if factor ~= 1 then
+      img.height = math.floor(x0:size(3) / factor)
+      img.width = math.floor(x0:size(4) / factor)
+      local x0_scale = image.scale(x0[1], img.width, img.height)
+      local x1_scale = image.scale(x1[1], img.width, img.height)
+      
+      img.x_batch:resize(2, self.n_channels, img.height, img.width)
+      img.x_batch[1]:copy(x0_scale)
+      img.x_batch[2]:copy(x1_scale)
+   else
+      img.height = orig_height
+      img.width = orig_width
+
+      img.x_batch:resize(2, self.n_channels, x0:size(3), x0:size(4))
+      img.x_batch[1]:copy(x0)
+      img.x_batch[2]:copy(x1)      
+   end
+
+   if not submit then
+      local dispnoc = self.dispnoc[{i,{},{},{1,orig_width}}]
+      if factor ~= 1 then
+         dispnoc = dispnoc:resize(1, x0:size(3), x0:size(4))
+         dispnoc = image.scale(dispnoc, img.width, img.height, "simple")
+      end
+      img.dispnoc = dispnoc:cuda()
+   end
 
    return img
 end

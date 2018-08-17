@@ -39,13 +39,15 @@ function TestingExpert:test(range, showall, make_cache)
    local runtime_sum = 0
    for i, idx in ipairs(range) do
       xlua.progress(i-1, #range)
-      local img = self.dataset:getTestSample(idx, false)
+      local img = self.dataset:getTestSample(idx, false, opt.red_factor)
       local disp_max = img.disp_max or self.dataset.disp_max
 
       cutorch.synchronize()
       sys.tic()
 
       local pred = predicting_expert:predict(img, disp_max, directions, make_cache)
+      pred = pred:mul(opt.red_factor)
+      
       collectgarbage()
 
       cutorch.synchronize()

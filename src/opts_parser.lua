@@ -53,6 +53,7 @@ function opt_module.parse(arg)
    cmd:option('-lambda', 0.8)
    cmd:option('-depth_threshold', 25)
    cmd:option('-ws', 3, 'Convolution windows size')
+   cmd:option('-red_factor', 1, 'Reduction factor of the images')
    
    cmd:option('-a', 'train', 'Action to perform: train (then test), test')
    

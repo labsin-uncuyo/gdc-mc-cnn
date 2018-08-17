@@ -1,4 +1,6 @@
 require 'torch'
+require 'image'
+require 'math'
 
 require 'expert/MatchingExpert'
 require 'expert/PrePostProcessingExpert'
@@ -25,6 +27,8 @@ end
 function PredictingExpert:predict(img, disp_max, directions, make_cache)
 
    local vox
+   
+   --local img_scaled = image.scale(img, math.floor(img.width / 2), math.floor(img.height / 2))
    -- compute matching cost
    if self.opt.use_cache then
       vox = torch.load(('%s_%s.t7'):format(self.path, img.id)):cuda()
