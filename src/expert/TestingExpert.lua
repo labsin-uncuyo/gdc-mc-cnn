@@ -46,7 +46,7 @@ function TestingExpert:test(range, showall, make_cache)
       sys.tic()
 
       local pred = predicting_expert:predict(img, disp_max, directions, make_cache)
-      pred = pred:mul(opt.red_factor)
+      pred = pred:div(opt.red_factor)
       
       collectgarbage()
 

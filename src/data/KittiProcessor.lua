@@ -214,8 +214,8 @@ function KittiProcessor:getTestSample(i, submit, reduction_factor)
    img.x_batch = torch.CudaTensor(2, self.n_channels, self.height, self.width)
    
    if factor ~= 1 then
-      img.height = math.floor(x0:size(3) / factor)
-      img.width = math.floor(x0:size(4) / factor)
+      img.height = math.floor(x0:size(3) * factor)
+      img.width = math.floor(x0:size(4) * factor)
       local x0_scale = image.scale(x0[1], img.width, img.height)
       local x1_scale = image.scale(x1[1], img.width, img.height)
       
