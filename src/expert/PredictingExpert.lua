@@ -34,7 +34,7 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
       vox = torch.load(('%s_%s.t7'):format(self.path, img.id)):cuda()
    else
       vox = self.matching:match(self.network, img.x_batch,
-         disp_max, directions):cuda()
+         disp_max/self.opt.red_factor, directions):cuda()
       if make_cache then
          torch.save(('%s_%s.t7'):format(self.path, img.id), vox)
       end
@@ -54,7 +54,7 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
          
          sm_active = true
       else
-         vox = self.post_processing:process(vox, img.x_batch, disp_max, self.network.params, self.dataset, self.opt.sm_terminate, self.opt.sm_skip, directions)
+         vox = self.post_processing:process(vox, img.x_batch, disp_max/self.opt.red_factor, self.network.params, self.dataset, self.opt.sm_terminate, self.opt.sm_skip, directions)
          
          collectgarbage()
       
@@ -72,7 +72,7 @@ function PredictingExpert:predict(img, disp_max, directions, make_cache)
    --self.storing:save_png_noerror(self.dataset, img, disp_filtered2, disp_max, 'post')
 
    -- refinement
-   disp = self.refinement:refine(disp, vox_simple, self.network.params, self.dataset, self.opt.sm_skip ,self.opt.sm_terminate, disp_max, conf, t.t1, t.t2, sm_active)
+   disp = self.refinement:refine(disp, vox_simple, self.network.params, self.dataset, self.opt.sm_skip ,self.opt.sm_terminate, disp_max/self.opt.red_factor, conf, t.t1, t.t2, sm_active)
 
    return disp[2]
 
