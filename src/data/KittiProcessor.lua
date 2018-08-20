@@ -198,14 +198,15 @@ function KittiProcessor:getLR(img)
    return x0, x1
 end
 
-function KittiProcessor:getTestSample(i, submit, reduction_factor)
+function KittiProcessor:getTestSample(i, submit, reduction_factor, full_res_check)
    local img = {}
    
    local factor = reduction_factor or 1
 
    local orig_height = self.metadata[{i,1}]
    local orig_width = self.metadata[{i,2}]
-
+   img.orig_height = orig_height
+   img.orig_width = orig_width
 
    img.id = self.metadata[{i,3}]
    local x0 = self.X0[{{i},{},{},{1,orig_width}}]
@@ -213,6 +214,9 @@ function KittiProcessor:getTestSample(i, submit, reduction_factor)
    
    img.x_batch = torch.CudaTensor(2, self.n_channels, self.height, self.width)
    
+   img.orig_x0_height = x0:size(3)
+   img.orig_x0_width = x0:size(4)
+
    if factor ~= 1 then
       img.height = math.floor(x0:size(3) * factor)
       img.width = math.floor(x0:size(4) * factor)
@@ -233,7 +237,7 @@ function KittiProcessor:getTestSample(i, submit, reduction_factor)
 
    if not submit then
       local dispnoc = self.dispnoc[{i,{},{},{1,orig_width}}]
-      if factor ~= 1 then
+      if factor ~= 1 and not full_res_check then
          dispnoc = dispnoc:resize(1, x0:size(3), x0:size(4))
          dispnoc = image.scale(dispnoc, img.width, img.height, "simple")
       end

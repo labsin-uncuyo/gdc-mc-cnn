@@ -1,5 +1,6 @@
 require 'torch'
 require 'cutorch'
+require 'image'
 
 require 'expert/PredictingExpert'
 require 'expert/StoringExpert'
@@ -39,7 +40,7 @@ function TestingExpert:test(range, showall, make_cache)
    local runtime_sum = 0
    for i, idx in ipairs(range) do
       xlua.progress(i-1, #range)
-      local img = self.dataset:getTestSample(idx, false, opt.red_factor)
+      local img = self.dataset:getTestSample(idx, false, opt.red_factor, opt.full_res_check)
       local disp_max = img.disp_max or self.dataset.disp_max
 
       cutorch.synchronize()
@@ -54,12 +55,20 @@ function TestingExpert:test(range, showall, make_cache)
       local runtime = sys.toc()
       
       runtime_sum = runtime_sum + runtime
+      
+      local float_pred = torch.FloatTensor():resize(pred:size(1), pred:size(2), img.orig_x0_height, img.orig_x0_width):zero()
+      if opt.full_res_check and opt.red_factor ~= 1 then
+         local temp_pred = nn.utils.recursiveType(pred, 'torch.FloatTensor')
+         float_pred[1]:copy(image.scale(temp_pred[1], img.orig_x0_width, img.orig_x0_height))
+         collectgarbage()
+      end
+      
 
       local dispnoc = img.dispnoc
       -- creates a mask with all the non-zero objects of the disparity
       local mask = torch.CudaTensor(dispnoc:size()):ne(dispnoc, 0)
 
-      err, pred_bad, pred_good = calcErr(self, pred, dispnoc:clone(), mask)
+      err, pred_bad, pred_good = calcErr(self, (opt.full_res_check and opt.red_factor ~= 1) and float_pred:cuda() or pred, dispnoc:clone(), mask)
       err_sum = err_sum + err
 
       if showall then
