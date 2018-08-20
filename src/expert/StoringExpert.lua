@@ -17,7 +17,7 @@ function StoringExpert:save_png(dataset, img, disp_max, pred, pred_bad, pred_goo
    end
    img_err = x0:mul(50):add(150):div(255)
    
-   if img.height ~= pred_bad:size(2) then
+   if x0:size(2) ~= pred_bad:size(2) then
       local temp_pred = nn.utils.recursiveType(pred_bad, 'torch.FloatTensor')
       pred_bad = image.scale(temp_pred, img.width, img.height, 'simple'):cuda()
       collectgarbage()
@@ -37,7 +37,7 @@ function StoringExpert:save_png(dataset, img, disp_max, pred, pred_bad, pred_goo
 
    local gt
    if dataset.name == 'kitti2012' or dataset.name == 'kitti2015' then
-      if img.height ~= img.dispnoc:size(2) then
+      if x0:size(2) ~= img.dispnoc:size(2) then
          local temp_gt = nn.utils.recursiveType(img.dispnoc, 'torch.FloatTensor')
          gt = image.scale(temp_gt, img.width, img.height, 'simple'):cuda()
          --gt = torch.CudaTensor(1,img.height, img.width)
@@ -52,7 +52,7 @@ function StoringExpert:save_png(dataset, img, disp_max, pred, pred_bad, pred_goo
    local img_gt = torch.Tensor(1, 3, pred:size(3), pred:size(4)):zero()
    adcensus.grey2jet(gt:double():add(1)[{1}]:div(disp_max):double(), img_gt)
    
-   if img.height ~= mask:size(2) then
+   if x0:size(2) ~= mask:size(2) then
       local temp_mask = nn.utils.recursiveType(mask, 'torch.FloatTensor')
       mask = image.scale(temp_mask, img.width, img.height, 'simple'):cuda()
       collectgarbage()
