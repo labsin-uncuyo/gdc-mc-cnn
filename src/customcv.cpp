@@ -70,7 +70,7 @@ static const struct luaL_Reg funcs[] = {
     {NULL, NULL}
 };
 
-extern "C" int luaopen_libcv(lua_State *L) {
-    luaL_openlib(L, "cv", funcs, 0);
+extern "C" int luaopen_libcustomcv(lua_State *L) {
+    luaL_openlib(L, "customcv", funcs, 0);
     return 1;
 }

@@ -6,7 +6,7 @@ require 'cunn'
 require 'image'
 
 require 'libadcensus'
-require 'libcv'
+require 'libcustomcv'
 
 require("net/model/AccurateModel")
 require("net/model/SqueezeModel")

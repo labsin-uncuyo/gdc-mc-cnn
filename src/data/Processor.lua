@@ -34,7 +34,7 @@ function Processor:makePatch(src, dst, dim3, dim4, ws, params)
 
    m = mul32({1, 0, (ws - 1) / 2, 0, 1, (ws - 1) / 2}, m)
    m = torch.FloatTensor(m)
-   cv.warp_affine(src, dst, m)
+   customcv.warp_affine(src, dst, m)
    if params then
       dst:mul(params.contrast):add(params.brightness)
    end
