@@ -21,7 +21,7 @@ function FastBuilder:buildDescriptionNet()
       descriptionNet:add(cudnn.SpatialConvolution(i == 1 and self.params.n_input_planes or self.params.n_feature_maps, self.params.n_feature_maps, self.params.kernel_sizes[i], self.params.kernel_sizes[i]))
       descriptionNet:add(nn.ReLU(true))
    end
-   descriptionNet:add(cudnn.SpatialConvolution(self.params.n_feature_maps, self.params.n_feature_maps, self.params.kernel_sizes[self.params.n_conv_layers], self.params.kernel_sizes[self.params.n_conv_layers]))
+   descriptionNet:add(cudnn.SpatialConvolution(self.params.n_input_planes == 1 and self.params.n_input_planes or self.params.n_feature_maps, self.params.n_feature_maps, self.params.kernel_sizes[self.params.n_conv_layers], self.params.kernel_sizes[self.params.n_conv_layers]))
    descriptionNet:add(nn.Normalize2())
      
    descriptionNet:cuda()
