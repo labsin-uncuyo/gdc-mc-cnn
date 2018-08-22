@@ -3,9 +3,9 @@ require 'nn'
 require 'cudnn'
 
 require 'net/criterion/Margin2'
-require 'net/builder/mc-cnn/Fast4LBuilder'
+require 'net/builder/mc-cnn/FastBuilder'
 
-local Fast4LModel, parent = torch.class('Fast4LModel', 'Fast4LBuilder')
+local Fast3LModel, parent = torch.class('Fast3LModel', 'FastBuilder')
 
 local function load_params(self, opt)
    self.params = {}
@@ -58,7 +58,7 @@ local function load_params(self, opt)
    for k,v in pairs(self.params) do print(k, v) end
 end
 
-function Fast4LModel:__init(opt)
+function Fast3LModel:__init(opt)
    parent.__init(self)
    load_params(self, opt)
    self.name = self:getName(opt)
