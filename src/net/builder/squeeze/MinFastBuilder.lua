@@ -33,7 +33,7 @@ function MinFastBuilder:buildDescriptionNet()
    return descriptionNet
 end
 
-function SqueezeFastBuilder:buildDecisionNet()
+function MinFastBuilder:buildDecisionNet()
    local decisionNet = nn.Sequential()
    
    decisionNet:add(nn.DotProduct2())
